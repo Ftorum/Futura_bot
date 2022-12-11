@@ -1,70 +1,40 @@
-#from dataclasses import dataclass
-# def say_something(number: int, word: str) -> str:
-#     word = word.capitalize()
-#     return word*number
+from aiogram import Bot, Dispatcher, executor, types
+from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
+from environs import Env
 
 
-# print(say_something(5, 'say something '))
+env = Env()
+env.read_env()
 
 
-# class User():
-#     def __init__(self, user_id, name, age, email):
-#         self.user_id = user_id
-#         self.name = name
-#         self.age = age
-#         self.email = email
+bot_token = env('BOT_TOKEN')
 
 
-# def get_user_info(user: User) -> str:
-#     return f'Возраст пользователя {user.name} - {user.age}, '\
-#         f'а email - {user.email}'
+bot: Bot = Bot(token=bot_token)
+dp: Dispatcher = Dispatcher(bot)
+
+keyboard: ReplyKeyboardMarkup = ReplyKeyboardMarkup()
+button_1: KeyboardButton = KeyboardButton('Собак')
+button_2: KeyboardButton = KeyboardButton('Огурцов')
+
+keyboard.add(button_1, button_2)
 
 
-# user_1: User = User(42, 'Anton', '30', 'tony_makarony@gmail.com')
-# print(get_user_info(user_1))
+async def process_start_command(message: types.Message):
+    await message.answer('Чего бояться кошки?', reply_markup=keyboard)
 
 
-# @dataclass
-# class User2:
-#     user_id: int
-#     name: str
-#     age: int
-#     email: str
+async def process_dog_answer(message: types.Message):
+    await message.answer('Да, так и есть', reply_markup=ReplyKeyboardRemove())
 
 
-# user_2: User2 = User2(4, 'Sergey', '35', 'makarony@gmail.com')
-# print(get_user_info(user_2))
+async def process_cucumber_answer(message: types.Message):
+    await message.answer('Нет, попробуй снова!', reply_markup=ReplyKeyboardRemove())
 
 
-# @dataclass
-# class DatabaseConfig:
-#     db_host: str
-#     db_user: str
-#     db_password: str
-#     database: str
+dp.register_message_handler(process_start_command, commands='start')
+dp.register_message_handler(process_dog_answer, text='Собак')
+dp.register_message_handler(process_cucumber_answer, text='Огурцов')
 
-
-# @dataclass
-# class TgBot:
-#     token: str
-#     admin_ids: list[int]
-
-
-# @dataclass
-# class Config:
-#     tg_bot: TgBot
-#     db: DatabaseConfig
-
-
-# config = Config(tg_bot=TgBot(token=BOT_TOKEN, admin_ids=ADMIN_IDS), db=DatabaseConfig(
-#     db_host=DB_HOST, db_user=DB_USER, db_password=DB_PASSWORD, database=DATABASE))
-
-
-import requests
-
-api_url = 'http://numbersapi.com/43'
-response = requests.get(api_url)
-if response.status_code == 200:
-    print(response.text)
-else:
-    print(response.status_code)
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)
