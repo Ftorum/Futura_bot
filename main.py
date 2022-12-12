@@ -19,7 +19,14 @@ url_button_1: InlineKeyboardButton = InlineKeyboardButton(
 url_button_2: InlineKeyboardButton = InlineKeyboardButton(
     text='Документация Telegram Bot API', url='https://core.telegram.org/bots/api')
 
-keyboard.add(url_button_1).add(url_button_2)
+
+group_name = env('GROUP_NAME')
+admin_id = env('ADMIN_ID')
+
+button_3: InlineKeyboardButton = InlineKeyboardButton(
+    text='Группа мейкеров', url=f'tg://user?id={admin_id}')
+
+keyboard.add(url_button_1).add(url_button_2).add(button_3)
 
 
 async def process_start_command(message: Message):
